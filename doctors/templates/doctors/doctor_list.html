@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+Doctors
+{% endblock %}
+
+{% block content %}
+
+<h1 class="mb-4">Our Doctors</h1>
+{% if can_manage_doctors %}
+<div class="mb-4">
+    <a href="{% url 'doctor_create' %}" class="btn btn-success">
+        Add Doctor
+    </a>
+</div>
+{% endif %}
+
+<div class="row">
+
+    {% for doctor in doctors %}
+
+    <div class="col-md-4 mb-4">
+
+        <div class="card shadow h-100">
+
+            <div class="card-body">
+
+                <h4>
+                    Dr. {{ doctor.first_name }} {{ doctor.last_name }}
+                </h4>
+
+                <hr>
+
+                <p>
+                    <strong>Department:</strong>
+                    {{ doctor.department }}
+                </p>
+
+                <p>
+                    <strong>Specialization:</strong>
+                    {{ doctor.specialization }}
+                </p>
+
+                <p>
+                    <strong>Email:</strong>
+                    {{ doctor.email }}
+                </p>
+
+                <p>
+                    <strong>Phone:</strong>
+                    {{ doctor.phone }}
+                </p>
+                 <a href="{% url 'doctor_detail' doctor.id %}" class="btn btn-primary">
+    View Details
+</a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="alert alert-warning">
+        No doctors available.
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

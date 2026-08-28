@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}eSewa Sandbox Checkout{% endblock %}
+{% block content %}
+<div class="card p-4 mx-auto" style="max-width: 650px">
+<h1 class="h3">Pay with eSewa (sandbox)</h1>
+<div class="alert alert-warning">Test environment only. Do not use a real wallet or real money.</div>
+<p>Appointment #{{ payment.appointment_id }} — NPR {{ payment.amount }}</p>
+<p>Slot held until {{ payment.expires_at }}. You will enter test credentials on eSewa, not on this website.</p>
+<form method="post" action="{{ form_url }}">
+    {% for key, value in fields.items %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+    <button class="btn btn-success" type="submit">Continue to eSewa Sandbox</button>
+</form>
+<p class="mt-3">If you already submitted a payment, check its status instead of paying again.</p>
+<a href="{% url 'appointment_detail' payment.appointment_id %}">Back to appointment</a>
+</div>
+{% endblock %}

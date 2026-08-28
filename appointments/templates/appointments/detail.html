@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Appointment #{{ appointment.pk }}{% endblock %}
+{% block content %}
+<h1>Appointment #{{ appointment.pk }}</h1>
+<div class="card p-4 mb-4">
+<p><strong>Patient:</strong> {{ appointment.patient }}</p>
+<p><strong>Doctor:</strong> {{ appointment.doctor }}</p>
+<p><strong>When:</strong> {{ appointment.appointment_date }} {{ appointment.appointment_time }} ({% now "e" %})</p>
+<p><strong>Status:</strong> {{ appointment.status }}</p>
+{% if payment %}
+<div class="alert alert-warning">eSewa sandbox only — not a real payment.</div>
+<p><strong>Payment:</strong> {{ payment.get_status_display }} — NPR {{ payment.amount }}</p>
+{% if payment.reference %}<p>eSewa reference: {{ payment.reference }}</p>{% endif %}
+{% if can_pay %}<p>Complete payment before {{ payment.expires_at }} to keep this slot.</p>{% endif %}
+{% if payment.status == 'REVIEW' %}<p>Contact reception for payment/refund review. This status does not mean a refund was issued.</p>{% endif %}
+{% if can_pay %}<form method="post" action="{% url 'esewa_checkout' appointment.pk %}" class="mb-2">{% csrf_token %}<button class="btn btn-success" type="submit">Pay with eSewa (Sandbox)</button></form>{% endif %}
+{% if can_check_payment %}<form method="post" action="{% url 'check_payment' appointment.pk %}" class="mb-2">{% csrf_token %}<button class="btn btn-outline-primary" type="submit">Check Payment Status</button></form>{% endif %}
+{% else %}<p>Existing booking: no online payment was required when created.</p>{% endif %}
+<p><strong>Reason:</strong> {{ appointment.reason|default:"Not provided" }}</p>
+<div class="d-flex flex-wrap gap-2">
+{% if can_assign %}<a class="btn btn-outline-primary" href="{% url 'assign_doctor' appointment.pk %}">Assign Doctor</a>{% endif %}
+{% if can_prescribe %}<a class="btn btn-primary" href="{% url 'prescribe' appointment.pk %}">Add Prescription</a>{% endif %}
+{% if can_complete %}<form method="post" action="{% url 'complete_appointment' appointment.pk %}">{% csrf_token %}<button class="btn btn-success" type="submit">Mark Completed</button></form>{% endif %}
+{% if can_cancel %}<form method="post" action="{% url 'cancel_appointment' appointment.pk %}">{% csrf_token %}<button class="btn btn-outline-danger" type="submit">Cancel Appointment</button></form>{% endif %}
+</div></div>
+<h2>Prescriptions</h2>
+{% include "appointments/prescription_items.html" %}
+<a href="{% url 'appointment_list' %}">Back to appointments</a>
+{% endblock %}

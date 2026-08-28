@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}
+Add Doctor
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+       <h2 class="mb-4">
+    {% if doctor %}
+        Edit Doctor
+    {% else %}
+        Add New Doctor
+    {% endif %}
+</h2>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit" class="btn btn-success">
+    {% if doctor %}
+        Update Doctor
+    {% else %}
+        Save Doctor
+    {% endif %}
+</button>
+
+            <a href="{% url 'doctor_list' %}" class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

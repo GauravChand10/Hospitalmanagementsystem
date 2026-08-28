@@ -1,0 +1,376 @@
+:root{
+
+    --primary:#0F766E;
+    --secondary:#14B8A6;
+    --dark:#134E4A;
+    --light:#F0FDFA;
+    --white:#ffffff;
+    --shadow:rgba(0,0,0,.12);
+
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+
+    background:var(--light);
+
+    font-family:'Segoe UI',sans-serif;
+
+    overflow-x:hidden;
+
+    color:#222;
+
+}
+
+.navbar{
+
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+
+    box-shadow:0 8px 25px rgba(0,0,0,.15);
+
+    padding:15px 0;
+
+}
+
+.navbar-brand{
+
+    color:white !important;
+
+    font-size:28px;
+
+    font-weight:bold;
+
+}
+
+.navbar .nav-link{
+
+    color:white !important;
+
+    margin:0 8px;
+
+    padding:10px 18px;
+
+    border-radius:12px;
+
+    transition:.35s;
+
+    position:relative;
+
+    font-weight:500;
+
+}
+
+.navbar .nav-link:hover{
+
+    background:rgba(255,255,255,.18);
+
+    backdrop-filter:blur(10px);
+
+    transform:translateY(-3px);
+
+}
+
+.navbar .nav-link::after{
+
+    content:"";
+
+    position:absolute;
+
+    bottom:4px;
+
+    left:50%;
+
+    width:0;
+
+    height:3px;
+
+    background:white;
+
+    border-radius:20px;
+
+    transform:translateX(-50%);
+
+    transition:.35s;
+
+}
+
+.navbar .nav-link:hover::after{
+
+    width:70%;
+
+}
+
+.hero{
+
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+
+    color:white;
+
+    padding:100px 20px;
+
+    text-align:center;
+
+    border-radius:0 0 40px 40px;
+
+    animation:fadeIn 1s;
+
+}
+
+.hero h1{
+
+    font-size:55px;
+
+    font-weight:700;
+
+}
+
+.hero p{
+
+    font-size:20px;
+
+    opacity:.95;
+
+}
+
+.btn-custom{
+
+    background:var(--white);
+
+    color:var(--primary);
+
+    border:none;
+
+    padding:12px 30px;
+
+    border-radius:50px;
+
+    transition:.35s;
+
+    font-weight:600;
+
+}
+
+.btn-custom:hover{
+
+    transform:translateY(-5px) scale(1.05);
+
+    box-shadow:0 15px 35px rgba(20,184,166,.35);
+
+}
+
+.card{
+
+    border:none;
+
+    border-radius:20px;
+
+    transition:.4s;
+
+    overflow:hidden;
+
+}
+
+.card:hover{
+
+    transform:translateY(-12px);
+
+    box-shadow:0 20px 45px rgba(0,0,0,.15);
+
+}
+
+.service-card{
+
+    background:white;
+
+    text-align:center;
+
+    padding:35px;
+
+}
+
+.service-card i{
+
+    font-size:55px;
+
+    color:var(--primary);
+
+    transition:.35s;
+
+}
+
+.service-card:hover i{
+
+    transform:rotate(8deg) scale(1.2);
+
+    color:var(--secondary);
+
+}
+
+.stats{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+}
+
+.counter{
+
+    font-size:42px;
+
+    font-weight:bold;
+
+    color:var(--primary);
+
+}
+
+.table{
+
+    background:white;
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+}
+
+.table thead{
+
+    background:var(--primary);
+
+    color:white;
+
+}
+
+.form-control{
+
+    border-radius:12px;
+
+    border:1px solid #ddd;
+
+    transition:.3s;
+
+}
+
+.form-control:focus{
+
+    border-color:var(--secondary);
+
+    box-shadow:0 0 10px rgba(20,184,166,.25);
+
+}
+
+footer{
+
+    margin-top:70px;
+
+    background:linear-gradient(135deg,var(--primary),var(--dark));
+
+    color:white;
+
+    padding:45px;
+
+}
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#e6f8f6;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:var(--primary);
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:var(--dark);
+
+}
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(40px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+.fade-up{
+
+    animation:fadeIn .8s ease;
+
+}
+
+img{
+
+    transition:.4s;
+
+}
+
+img:hover{
+
+    transform:scale(1.03);
+
+}
+
+a{
+
+    text-decoration:none;
+
+}
+
+a:hover{
+
+    text-decoration:none;
+
+}
+
+.badge{
+
+    border-radius:30px;
+
+    padding:8px 15px;
+
+}
+
+.shadow-custom{
+
+    box-shadow:0 15px 35px rgba(0,0,0,.12);
+
+}

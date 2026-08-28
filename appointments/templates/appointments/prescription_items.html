@@ -1,0 +1,11 @@
+{% for prescription in prescriptions %}
+<article class="card p-3 mb-3">
+<h3 class="h5">{{ prescription.medicine }}</h3>
+<p><strong>Dosage:</strong> {{ prescription.dosage }}<br>
+<strong>Frequency:</strong> {{ prescription.frequency }}<br>
+<strong>Duration:</strong> {{ prescription.duration }}</p>
+{% if prescription.instructions %}<p>{{ prescription.instructions|linebreaksbr }}</p>{% endif %}
+<p>Prescribed by {{ prescription.doctor }} on {{ prescription.created_at }}.</p>
+<a href="{% url 'appointment_detail' prescription.appointment_id %}">Appointment #{{ prescription.appointment_id }}</a>
+</article>
+{% empty %}<p>No prescriptions recorded.</p>{% endfor %}

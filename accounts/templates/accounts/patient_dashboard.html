@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}
+Patient Dashboard
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Welcome, {{ request.user.username }}</h2>
+
+    <hr>
+
+    <div class="list-group">
+
+        <a href="{% url 'book_appointment' %}" class="list-group-item list-group-item-action">Book Appointment</a>
+        <a href="{% url 'patient_profile' %}" class="list-group-item list-group-item-action">My Profile</a>
+        <a href="{% url 'appointment_list' %}" class="list-group-item list-group-item-action">
+            My Appointments
+        </a>
+
+        <a href="{% url 'my_prescriptions' %}" class="list-group-item list-group-item-action">
+            My Prescriptions
+        </a>
+
+        <span class="list-group-item text-muted">Lab Reports — coming soon</span>
+
+        <span class="list-group-item text-muted">Support Ticket — coming soon</span>
+
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="list-group-item list-group-item-action text-danger">Logout</button>
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

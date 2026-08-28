@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Appointments{% endblock %}
+{% block content %}
+<h1>{% if is_patient %}My Appointments{% else %}Appointments{% endif %}</h1>
+{% if is_patient %}
+<div class="d-flex gap-2 mb-4">
+    <a class="btn btn-primary" href="{% url 'book_appointment' %}">Book Appointment</a>
+    <a class="btn btn-outline-secondary" href="{% url 'patient_profile' %}">My Profile</a>
+</div>
+{% endif %}
+<p>Appointment times: {% now "e" %}. Each booking reserves a 30-minute slot.</p>
+<div class="table-responsive">
+<table class="table table-striped">
+<thead><tr><th scope="col">Date / time</th>{% if not is_patient %}<th scope="col">Patient</th>{% endif %}<th scope="col">Doctor</th><th scope="col">Status</th><th scope="col">Details</th></tr></thead>
+<tbody>
+{% for appointment in appointments %}
+<tr><td>{{ appointment.appointment_date }} {{ appointment.appointment_time }}</td>
+{% if not is_patient %}<td>{{ appointment.patient }}</td>{% endif %}
+<td>{{ appointment.doctor }}</td><td>{{ appointment.status }}</td>
+<td><a href="{% url 'appointment_detail' appointment.pk %}">View appointment #{{ appointment.pk }}</a></td></tr>
+{% empty %}<tr><td colspan="5">No appointments yet.</td></tr>{% endfor %}
+</tbody></table>
+</div>
+{% endblock %}

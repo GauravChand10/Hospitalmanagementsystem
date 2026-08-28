@@ -1,4 +1,4 @@
-{% load static %}
+{% load static assets %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,18 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Hospital Management System{% endblock %}</title>
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta name="description" content="Find a doctor, explore availability, and manage appointments through the HMS patient portal.">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% versioned_static 'css/style.css' %}">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<nav class="navbar navbar-expand-lg navbar-light hospital-nav" aria-label="Main navigation">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">HMS</a>
+        <a class="navbar-brand fw-bold" href="{% url 'home' %}"><span class="brand-monogram" aria-hidden="true">H</span><span>HMS<small>HOSPITAL &amp; PATIENT SERVICES</small></span></a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -61,13 +62,13 @@
     </div>
 </nav>
 
-<div class="container mt-4">
+<main id="main-content" class="container {% block page_spacing %}mt-4{% endblock %}">
     {% for message in messages %}
     <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}" role="status">{{ message }}</div>
     {% endfor %}
     {% block content %}
     {% endblock %}
-</div>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 

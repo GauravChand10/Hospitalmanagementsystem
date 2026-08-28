@@ -1,127 +1,98 @@
 {% extends "base.html" %}
-
-{% block title %}
-Home
-{% endblock %}
-
+{% block title %}HMS | Your care, a little closer{% endblock %}
+{% block page_spacing %}home-page{% endblock %}
 {% block content %}
-
-
-<div class="hero">
-
-    <h1>Hospital Management System</h1>
-
-    <p>
-        Explore our doctors and sign in to access your patient dashboard.
-    </p>
-{% if not request.user.is_authenticated %}
-<a href="{% url 'login' %}" class="btn btn-light btn-lg">
-     Patient Login
-</a>
-{% elif request.user.role == 'PATIENT' and not request.user.is_superuser %}
-<a href="{% url 'patient_dashboard' %}" class="btn btn-light btn-lg">My Dashboard</a>
-{% else %}
-<p>You are signed in as {{ request.user.username }}.</p>
-{% endif %}
-
-</div>
-
-<div class="row mt-5 g-4">
-
-    <div class="col-md-3">
-        <div class="card stat-card text-center p-4">
-            <h5>Departments</h5>
-            <div class="stat-number text-primary">
-                {{ department_count }}
-            </div>
+<section class="care-hero" aria-labelledby="hero-title">
+    <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A simpler way to connect with care</p>
+        <h1 id="hero-title">Your care.<br>Your time.<br><em>A little closer.</em></h1>
+        <p class="hero-description">Find the right doctor, choose a time that works for you, and keep your appointments in one place.</p>
+        <div class="hero-actions">
+            {% if not request.user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn btn-primary">Patient Login <span aria-hidden="true">&rarr;</span></a>
+            {% elif request.user.role == 'PATIENT' and not request.user.is_superuser %}
+            <a href="{% url 'book_appointment' %}" class="btn btn-primary">Book an Appointment <span aria-hidden="true">&rarr;</span></a>
+            {% else %}
+            <a href="{% url 'appointment_list' %}" class="btn btn-primary">Manage Appointments <span aria-hidden="true">&rarr;</span></a>
+            {% endif %}
+            <a href="{% url 'doctor_list' %}" class="quiet-link">Explore our doctors <span aria-hidden="true">&nearr;</span></a>
+        </div>
+        <div class="hero-facts" aria-label="Hospital directory">
+            <div><strong>{{ doctor_count|stringformat:"02d" }}</strong><span>Doctors in our directory</span></div>
+            <div><strong>{{ department_count|stringformat:"02d" }}</strong><span>Departments to explore</span></div>
+            <div><strong>30 <small>min</small></strong><span>Appointment slots</span></div>
         </div>
     </div>
-
-    <div class="col-md-3">
-        <div class="card stat-card text-center p-4">
-            <h5>Doctors</h5>
-            <div class="stat-number text-success">
-                {{ doctor_count }}
-            </div>
-        </div>
+    <aside class="visit-panel" aria-labelledby="visit-heading">
+        <div class="visit-topline"><span>PATIENT SERVICES</span><span class="panel-number">01 / YOUR VISIT</span></div>
+        <h2 id="visit-heading">A clear next step.<br>A little peace of mind.</h2>
+        <p>Start with a doctor. We’ll help you find an available time.</p>
+        <a href="{% url 'doctor_list' %}" class="visit-action">
+            <span class="step-symbol" aria-hidden="true">01</span><span><strong>Find your doctor</strong><small>Browse specialties and profiles</small></span><span aria-hidden="true">&rarr;</span>
+        </a>
+        <a href="#our-doctors" class="visit-action">
+            <span class="step-symbol" aria-hidden="true">02</span><span><strong>See available hours</strong><small>Check a date before you book</small></span><span aria-hidden="true">&rarr;</span>
+        </a>
+        {% if request.user.is_authenticated and request.user.role == 'PATIENT' and not request.user.is_superuser %}
+        <a href="{% url 'patient_dashboard' %}" class="visit-action"><span class="step-symbol" aria-hidden="true">03</span><span><strong>My Dashboard</strong><small>Your visits and prescriptions</small></span><span aria-hidden="true">&rarr;</span></a>
+        {% elif not request.user.is_authenticated %}
+        <a href="{% url 'register' %}" class="visit-action"><span class="step-symbol" aria-hidden="true">03</span><span><strong>New to the portal?</strong><small>Create your patient account</small></span><span aria-hidden="true">&rarr;</span></a>
+        {% else %}
+        <a href="{% url 'appointment_list' %}" class="visit-action"><span class="step-symbol" aria-hidden="true">03</span><span><strong>Your appointment workspace</strong><small>Review and manage patient visits</small></span><span aria-hidden="true">&rarr;</span></a>
+        {% endif %}
+        <div class="visit-note"><span class="note-mark" aria-hidden="true">i</span><span>Online booking is for scheduled appointments, not emergency care.</span></div>
+    </aside>
+</section>
+<section class="directory-strip" aria-labelledby="departments-heading">
+    <div><p class="eyebrow">CONNECTED CARE</p><h2 id="departments-heading">Explore our departments</h2></div>
+    <div class="department-tags">{% for department in departments %}<span>{{ department.name }}</span>{% empty %}<span>Department directory coming soon</span>{% endfor %}</div>
+</section>
+<section id="our-doctors" class="home-section" aria-labelledby="doctors-heading">
+    <div class="section-heading">
+        <div><p class="eyebrow">PEOPLE BEHIND YOUR CARE</p><h2 id="doctors-heading">Meet our doctors.</h2><p>Explore their specialties and find your next available appointment.</p></div>
+        <a href="{% url 'doctor_list' %}" class="quiet-link">View all doctors <span aria-hidden="true">&rarr;</span></a>
     </div>
-
-    <div class="col-md-3">
-        <div class="card stat-card text-center p-4">
-            <h5>Patients</h5>
-            <div class="stat-number text-warning">
-                {{ patient_count }}
+    <div class="physician-grid">
+        {% for doctor in doctors %}
+        <article class="physician-card">
+            <div class="physician-top"><div class="physician-initials" aria-hidden="true">{{ doctor.first_name|first }}{{ doctor.last_name|first }}</div><span class="department-label">{{ doctor.department.name }}</span></div>
+            <p class="physician-specialty">{{ doctor.specialization }}</p><h3>Dr. {{ doctor.first_name }} {{ doctor.last_name }}</h3>
+            <div class="physician-schedule">
+                {% with hours=doctor.availability.all %}
+                {% if hours %}<p class="schedule-label">WEEKLY HOURS <span>{% now "e" %}</span></p><ul>
+                    {% for window in hours %}<li><span>{{ window.get_weekday_display }}</span><span>{{ window.start_time|time:"H:i" }} &ndash; {{ window.end_time|time:"H:i" }}</span></li>{% endfor %}
+                </ul>{% else %}<p class="schedule-empty">Hours have not been published yet.</p>{% endif %}
+                {% endwith %}
             </div>
-        </div>
+            <a class="physician-link" href="{% url 'doctor_detail' doctor.pk %}">View profile &amp; available slots <span aria-hidden="true">&nearr;</span></a>
+        </article>
+        {% empty %}<div class="directory-empty"><h3>Our directory is being prepared.</h3><p>Doctor profiles will appear here as they are added.</p></div>{% endfor %}
     </div>
-
-    <div class="col-md-3">
-        <div class="card stat-card text-center p-4">
-            <h5>Appointments</h5>
-            <div class="stat-number text-danger">
-                {{ appointment_count }}
-            </div>
-        </div>
+</section>
+<section class="journey-section" aria-labelledby="journey-heading">
+    <div class="section-heading"><div><p class="eyebrow">LESS ADMIN. MORE CLARITY.</p><h2 id="journey-heading">Your visit, made simpler.</h2></div><p>From your first booking to your follow-up<br class="d-none d-md-block"> instructions, keep the essentials together.</p></div>
+    <ol class="journey-grid">
+        <li><span class="journey-number">01</span><h3>Make it personal</h3><p>Create your account and complete your patient profile before booking.</p></li>
+        <li><span class="journey-number">02</span><h3>Choose your time</h3><p>Check your doctor’s weekly hours and select an available 30-minute slot.</p></li>
+        <li><span class="journey-number">03</span><h3>Stay in the loop</h3><p>Review appointment updates and read prescriptions recorded by your doctor.</p></li>
+    </ol>
+</section>
+<section class="patient-cta" aria-labelledby="cta-heading">
+    <div><p class="eyebrow">YOUR PATIENT PORTAL</p><h2 id="cta-heading">One place for<br>your next step.</h2><p>Appointments, profiles, and prescriptions.<br>Organized around you.</p></div>
+    <div class="cta-actions">
+    {% if not request.user.is_authenticated %}
+        <a href="{% url 'register' %}" class="btn btn-light">Create a Patient Account <span aria-hidden="true">&rarr;</span></a><a href="{% url 'login' %}" class="cta-secondary">Already registered? Sign in</a>
+    {% elif request.user.role == 'PATIENT' and not request.user.is_superuser %}
+        <a href="{% url 'patient_dashboard' %}" class="btn btn-light">My Dashboard <span aria-hidden="true">&rarr;</span></a><a href="{% url 'my_prescriptions' %}" class="cta-secondary">View my prescriptions</a>
+    {% else %}
+        <a href="{% url 'appointment_list' %}" class="btn btn-light">Open Appointments <span aria-hidden="true">&rarr;</span></a>
+    {% endif %}
     </div>
-
-</div>
-
-<h2 class="section-title mt-5">
-    Our Doctors
-</h2>
-
-<div class="row">
-
-    {% for doctor in doctors %}
-
-    <div class="col-lg-4 col-md-6 mb-4">
-
-        <div class="card doctor-card">
-
-            <div class="doctor-header">
-                <h3>
-                    Dr. {{ doctor.first_name }} {{ doctor.last_name }}
-                </h3>
-            </div>
-
-            <div class="doctor-body">
-
-                <p>
-                    <strong>Department:</strong><br>
-                    {{ doctor.department }}
-                </p>
-
-                <p>
-                    <strong>Specialization:</strong><br>
-                    {{ doctor.specialization }}
-                </p>
-
-                <p>
-                    <strong>Email:</strong><br>
-                    {{ doctor.email }}
-                </p>
-
-                <p>
-                    <strong>Phone:</strong><br>
-                    {{ doctor.phone }}
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    {% empty %}
-
-    <div class="col-12">
-        <div class="alert alert-warning text-center">
-            No doctors available.
-        </div>
-    </div>
-
-    {% endfor %}
-
-</div>
-
+</section>
+<aside class="demo-disclosure"><strong>Demonstration portal</strong><span>{% if appointment_fee %}Appointment fee: NPR {{ appointment_fee|floatformat:2 }}. {% endif %}eSewa payments use the sandbox only; no real money is collected.</span></aside>
+<footer class="hospital-footer">
+    <div><a href="{% url 'home' %}" class="footer-brand">HMS</a><p>Hospital &amp; Patient Services</p></div>
+    <div class="footer-links"><a href="{% url 'home' %}">Home</a><a href="{% url 'doctor_list' %}">Doctor directory</a>{% if not request.user.is_authenticated %}<a href="{% url 'login' %}">Patient portal</a>{% endif %}</div>
+    <p class="footer-meta">&copy; {% now "Y" %} HMS. Patient portal demonstration.</p>
+</footer>
 {% endblock %}

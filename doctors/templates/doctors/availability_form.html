@@ -2,18 +2,19 @@
 {% block title %}Doctor Availability{% endblock %}
 {% block content %}
 <h1>Availability for {{ doctor }}</h1>
-<p>Times are in {% now "e" %}. Enable each working day and set its opening and closing times.
-Unchecked days are closed. Each appointment must fit fully within the hours shown.</p>
+<p>Times are in {% now "e" %}. Enable working days and optionally add a second shift for a midday break.</p>
 <form method="post">
 {% csrf_token %}
 {{ form.non_field_errors }}
 <div class="table-responsive">
-<table class="table"><thead><tr><th>Day</th><th>Available</th><th>Opening</th><th>Closing</th></tr></thead>
+<table class="table"><thead><tr><th>Day</th><th>Available</th><th>Opening</th><th>Closing</th><th>Second shift</th><th>Opening</th><th>Closing</th></tr></thead>
 <tbody>{% for row in form.rows %}
 <tr><th scope="row">{{ row.label }}</th>
 <td>{{ row.enabled }}<label class="visually-hidden" for="{{ row.enabled.id_for_label }}">{{ row.label }} available</label>{{ row.enabled.errors }}</td>
 <td>{{ row.start }}<label class="visually-hidden" for="{{ row.start.id_for_label }}">{{ row.label }} opening time</label>{{ row.start.errors }}</td>
-<td>{{ row.end }}<label class="visually-hidden" for="{{ row.end.id_for_label }}">{{ row.label }} closing time</label>{{ row.end.errors }}</td></tr>
+<td>{{ row.end }}<label class="visually-hidden" for="{{ row.end.id_for_label }}">{{ row.label }} closing time</label>{{ row.end.errors }}</td>
+<td>{{ row.split }}<label class="visually-hidden" for="{{ row.split.id_for_label }}">Add {{ row.label }} second shift</label>{{ row.split.errors }}</td>
+<td>{{ row.start_2 }}{{ row.start_2.errors }}</td><td>{{ row.end_2 }}{{ row.end_2.errors }}</td></tr>
 {% endfor %}</tbody></table></div>
 <button class="btn btn-primary" type="submit">Save Hours</button>
 <a href="{% url 'doctor_detail' doctor.pk %}" class="btn btn-outline-secondary">Cancel</a>

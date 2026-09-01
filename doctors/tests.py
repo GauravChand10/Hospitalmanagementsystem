@@ -163,6 +163,28 @@ class AvailabilityTests(TestCase):
         self.assertFalse(within_hours(self.doctor, self.day + timedelta(days=1), time(9)))
         self.assertEqual(available_slots(self.doctor, self.day), ["09:00", "09:30"])
 
+    def test_split_shifts_exclude_break_and_offer_both_windows(self):
+        weekday = self.day.weekday()
+        DoctorAvailability.objects.create(doctor=self.doctor, weekday=weekday, start_time=time(8, 30), end_time=time(12))
+        DoctorAvailability.objects.create(doctor=self.doctor, weekday=weekday, start_time=time(13), end_time=time(15))
+        self.assertTrue(within_hours(self.doctor, self.day, time(11, 30)))
+        self.assertFalse(within_hours(self.doctor, self.day, time(12)))
+        self.assertTrue(within_hours(self.doctor, self.day, time(13)))
+        slots = available_slots(self.doctor, self.day)
+        self.assertIn("08:30", slots)
+        self.assertIn("13:00", slots)
+        self.assertNotIn("12:00", slots)
+
+    def test_availability_form_saves_two_shifts(self):
+        day = self.day.weekday()
+        payload = self.payload("08:30", "12:00")
+        payload.update({f"split_{day}": "on", f"start_2_{day}": "13:00", f"end_2_{day}": "16:00"})
+        form = WeeklyAvailabilityForm(payload, doctor=self.doctor)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.assertEqual(list(self.doctor.availability.values_list("start_time", "end_time")),
+                         [(time(8, 30), time(12)), (time(13), time(16))])
+
     def test_hours_visible_without_login(self):
         DoctorAvailability.objects.create(doctor=self.doctor, weekday=self.day.weekday(), start_time=time(9), end_time=time(10))
         response = self.client.get(reverse("doctor_detail", args=[self.doctor.pk]), {"date": str(self.day)})

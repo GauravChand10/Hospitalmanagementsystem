@@ -7,7 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Hospital Management System{% endblock %}</title>
 
-    <meta name="description" content="Find a doctor, explore availability, and manage appointments through the HMS patient portal.">
+    <meta name="description" content="Find doctors, book hospital appointments, and use HMS patient services.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{% versioned_static 'css/style.css' %}">
@@ -17,7 +20,7 @@
 <a class="skip-link" href="#main-content">Skip to content</a>
 <nav class="navbar navbar-expand-lg navbar-light hospital-nav" aria-label="Main navigation">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="{% url 'home' %}"><span class="brand-monogram" aria-hidden="true">H</span><span>HMS<small>HOSPITAL &amp; PATIENT SERVICES</small></span></a>
+        <a class="navbar-brand" href="{% url 'home' %}"><span class="brand-symbol" aria-hidden="true"><span></span></span><span class="brand-wordmark"><strong>HMS</strong><small>Hospital Management System</small></span></a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -34,23 +37,33 @@
                     <a class="nav-link" href="{% url 'doctor_list' %}">Doctors</a>
                 </li>
 
-                {% if request.user.is_authenticated and request.user.role == 'PATIENT' and not request.user.is_superuser %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'patient_dashboard' %}">My Dashboard</a>
+                    <a class="nav-link" href="{% url 'home' %}#ambulance">Ambulance</a>
                 </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+
+                {% if request.user.is_authenticated and request.user.role == 'PATIENT' and not request.user.is_superuser %}
+                <li class="nav-item patient-menu-item">
+                    <details class="patient-menu">
+                        <summary>{{ request.user.username }}</summary>
+                        <div class="patient-menu-panel">
+                            <p class="patient-menu-identity">Signed in as {{ request.user.username }}</p>
+                            <a href="{% url 'patient_dashboard' %}"><strong>Dashboard</strong><small>Overview of your care</small></a>
+                            <a href="{% url 'book_appointment' %}"><strong>Book appointment</strong><small>Choose a doctor and time</small></a>
+                            <a href="{% url 'appointment_list' %}"><strong>My appointments</strong><small>Review upcoming visits</small></a>
+                            <a href="{% url 'my_prescriptions' %}"><strong>Prescriptions</strong><small>View your medicines</small></a>
+                            <form class="logout-form" method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Logout</button></form>
+                        </div>
+                    </details>
                 </li>
                 {% endif %}
 
-                {% if request.user.is_authenticated %}
+                {% if request.user.is_authenticated and request.user.role != 'PATIENT' or request.user.is_superuser %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'appointment_list' %}">Appointments</a></li>
                 <li class="nav-item">
                     <span class="navbar-text">Signed in as {{ request.user.username }}</span>
                 </li>
                 <li class="nav-item">
-                    <form method="post" action="{% url 'logout' %}">
+                    <form class="logout-form" method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
                         <button type="submit" class="nav-link border-0 bg-transparent">Logout</button>
                     </form>
@@ -71,6 +84,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% versioned_static 'js/navigation.js' %}"></script>
 
 </body>
 </html>

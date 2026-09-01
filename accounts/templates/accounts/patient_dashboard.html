@@ -1,40 +1,36 @@
 {% extends "base.html" %}
-
-{% block title %}
-Patient Dashboard
-{% endblock %}
-
+{% block title %}My Patient Dashboard | HMS{% endblock %}
 {% block content %}
-
-<div class="container mt-4">
-
-    <h2>Welcome, {{ request.user.username }}</h2>
-
-    <hr>
-
-    <div class="list-group">
-
-        <a href="{% url 'book_appointment' %}" class="list-group-item list-group-item-action">Book Appointment</a>
-        <a href="{% url 'patient_profile' %}" class="list-group-item list-group-item-action">My Profile</a>
-        <a href="{% url 'appointment_list' %}" class="list-group-item list-group-item-action">
-            My Appointments
-        </a>
-
-        <a href="{% url 'my_prescriptions' %}" class="list-group-item list-group-item-action">
-            My Prescriptions
-        </a>
-
-        <span class="list-group-item text-muted">Lab Reports — coming soon</span>
-
-        <span class="list-group-item text-muted">Support Ticket — coming soon</span>
-
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="list-group-item list-group-item-action text-danger">Logout</button>
-        </form>
-
+<section class="dashboard-page" aria-labelledby="dashboard-heading">
+    <header class="dashboard-header">
+        <div><p class="eyebrow">Patient portal</p><h1 id="dashboard-heading">Welcome, {{ request.user.username }}</h1><p>Manage your care and find your next step</p></div>
+        <a href="{% url 'book_appointment' %}" class="btn btn-primary dashboard-book">Book appointment</a>
+    </header>
+    {% if not profile %}
+    <aside class="profile-reminder"><div><strong>Complete your patient profile</strong><span>Add your details before booking</span></div><a href="{% url 'patient_profile' %}" class="btn btn-outline-primary">Complete profile</a></aside>
+    {% endif %}
+    <div class="dashboard-layout">
+        <div class="dashboard-main">
+            <div class="dashboard-section-heading"><p class="eyebrow">Quick actions</p><h2>What would you like to do?</h2></div>
+            <div class="dashboard-actions">
+                <a href="{% url 'book_appointment' %}" class="dashboard-action dashboard-action-primary"><span class="action-mark">+</span><span><strong>Book Appointment</strong><small>Choose a doctor and available time</small></span></a>
+                <a href="{% url 'appointment_list' %}" class="dashboard-action"><span class="action-mark">01</span><span><strong>My Appointments</strong><small>Review visits and payment status</small></span></a>
+                <a href="{% url 'my_prescriptions' %}" class="dashboard-action"><span class="action-mark">Rx</span><span><strong>My Prescriptions</strong><small>View medicines from your doctors</small></span></a>
+                <a href="{% url 'patient_profile' %}" class="dashboard-action"><span class="action-mark">ID</span><span><strong>My Profile</strong><small>Update personal and contact details</small></span></a>
+                <a href="{% url 'ambulance_request' %}" class="dashboard-action dashboard-action-urgent"><span class="action-mark">SOS</span><span><strong>Ambulance Support</strong><small>Emergency, transfer, or scheduled transport</small></span></a>
+            </div>
+            <div class="future-services"><div><span>Lab Reports</span><small>Coming soon</small></div><div><span>Support Ticket</span><small>Coming soon</small></div></div>
+        </div>
+        <aside class="dashboard-summary" aria-labelledby="summary-heading">
+            <p class="eyebrow">At a glance</p><h2 id="summary-heading">Your care summary</h2>
+            <div class="summary-counts"><div><strong>{{ appointment_count|stringformat:"02d" }}</strong><span>Appointments</span></div><div><strong>{{ prescription_count|stringformat:"02d" }}</strong><span>Prescriptions</span></div></div>
+            <div class="next-visit"><span class="summary-label">Next appointment</span>
+                {% if next_appointment %}<strong>{{ next_appointment.appointment_date|date:"D, M j" }}</strong><p>{{ next_appointment.appointment_time|time:"H:i" }} with Dr. {{ next_appointment.doctor.first_name|title }} {{ next_appointment.doctor.last_name|title }}</p><a href="{% url 'appointment_detail' next_appointment.pk %}">View appointment</a>
+                {% else %}<strong>No visit scheduled</strong><p>Choose a doctor when you are ready</p><a href="{% url 'doctor_list' %}">Browse doctors</a>{% endif %}
+            </div>
+            <div class="profile-state"><span>Patient profile</span><strong>{% if profile %}Ready{% else %}Incomplete{% endif %}</strong></div>
+        </aside>
     </div>
-
-</div>
-
+    <footer class="dashboard-footer"><span>Need to leave securely?</span><form class="logout-form" method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Logout</button></form></footer>
+</section>
 {% endblock %}

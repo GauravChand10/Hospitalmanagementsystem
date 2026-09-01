@@ -1,98 +1,129 @@
 {% extends "base.html" %}
-{% block title %}HMS | Your care, a little closer{% endblock %}
+{% load static %}
+{% block title %}HMS | Hospital appointments{% endblock %}
 {% block page_spacing %}home-page{% endblock %}
 {% block content %}
-<section class="care-hero" aria-labelledby="hero-title">
-    <div class="hero-copy">
-        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A simpler way to connect with care</p>
-        <h1 id="hero-title">Your care.<br>Your time.<br><em>A little closer.</em></h1>
-        <p class="hero-description">Find the right doctor, choose a time that works for you, and keep your appointments in one place.</p>
-        <div class="hero-actions">
+
+<section class="care-hero" style="--hero-image:url('{% static 'images/hospital-doctor-hero.jpg' %}')" aria-labelledby="hero-title">
+    <div class="hero-inner">
+        <div class="hero-content">
+            <div class="hero-copy">
+                <p class="eyebrow hero-eyebrow">Appointments and patient services</p>
+                <h1 id="hero-title">Find a doctor and book an appointment</h1>
+                <p class="hero-description">View doctors and their published hours, then choose an available appointment time.</p>
+            </div>
+            <nav class="hero-links" aria-label="Patient services. Doctor schedules are shown before booking">
+                <a class="hero-action hero-action-primary" href="{% url 'doctor_list' %}"><strong>Find a doctor</strong></a>
+                <a class="hero-action" href="#our-doctors"><strong>Check availability</strong></a>
+                <a class="hero-action hero-action-book" href="{% url 'book_appointment' %}"><strong>Book appointment</strong></a>
             {% if not request.user.is_authenticated %}
-            <a href="{% url 'login' %}" class="btn btn-primary">Patient Login <span aria-hidden="true">&rarr;</span></a>
+                <a class="hero-action" href="{% url 'login' %}"><strong>Patient login</strong></a>
             {% elif request.user.role == 'PATIENT' and not request.user.is_superuser %}
-            <a href="{% url 'book_appointment' %}" class="btn btn-primary">Book an Appointment <span aria-hidden="true">&rarr;</span></a>
+                <a class="hero-action" href="{% url 'patient_dashboard' %}"><strong>My dashboard</strong></a>
             {% else %}
-            <a href="{% url 'appointment_list' %}" class="btn btn-primary">Manage Appointments <span aria-hidden="true">&rarr;</span></a>
+                <a class="hero-action" href="{% url 'appointment_list' %}"><strong>Appointments</strong></a>
             {% endif %}
-            <a href="{% url 'doctor_list' %}" class="quiet-link">Explore our doctors <span aria-hidden="true">&nearr;</span></a>
-        </div>
-        <div class="hero-facts" aria-label="Hospital directory">
-            <div><strong>{{ doctor_count|stringformat:"02d" }}</strong><span>Doctors in our directory</span></div>
-            <div><strong>{{ department_count|stringformat:"02d" }}</strong><span>Departments to explore</span></div>
-            <div><strong>30 <small>min</small></strong><span>Appointment slots</span></div>
+                <a class="hero-action" href="#ambulance"><strong>Ambulance service</strong></a>
+            </nav>
         </div>
     </div>
-    <aside class="visit-panel" aria-labelledby="visit-heading">
-        <div class="visit-topline"><span>PATIENT SERVICES</span><span class="panel-number">01 / YOUR VISIT</span></div>
-        <h2 id="visit-heading">A clear next step.<br>A little peace of mind.</h2>
-        <p>Start with a doctor. We’ll help you find an available time.</p>
-        <a href="{% url 'doctor_list' %}" class="visit-action">
-            <span class="step-symbol" aria-hidden="true">01</span><span><strong>Find your doctor</strong><small>Browse specialties and profiles</small></span><span aria-hidden="true">&rarr;</span>
-        </a>
-        <a href="#our-doctors" class="visit-action">
-            <span class="step-symbol" aria-hidden="true">02</span><span><strong>See available hours</strong><small>Check a date before you book</small></span><span aria-hidden="true">&rarr;</span>
-        </a>
-        {% if request.user.is_authenticated and request.user.role == 'PATIENT' and not request.user.is_superuser %}
-        <a href="{% url 'patient_dashboard' %}" class="visit-action"><span class="step-symbol" aria-hidden="true">03</span><span><strong>My Dashboard</strong><small>Your visits and prescriptions</small></span><span aria-hidden="true">&rarr;</span></a>
-        {% elif not request.user.is_authenticated %}
-        <a href="{% url 'register' %}" class="visit-action"><span class="step-symbol" aria-hidden="true">03</span><span><strong>New to the portal?</strong><small>Create your patient account</small></span><span aria-hidden="true">&rarr;</span></a>
-        {% else %}
-        <a href="{% url 'appointment_list' %}" class="visit-action"><span class="step-symbol" aria-hidden="true">03</span><span><strong>Your appointment workspace</strong><small>Review and manage patient visits</small></span><span aria-hidden="true">&rarr;</span></a>
-        {% endif %}
-        <div class="visit-note"><span class="note-mark" aria-hidden="true">i</span><span>Online booking is for scheduled appointments, not emergency care.</span></div>
-    </aside>
 </section>
-<section class="directory-strip" aria-labelledby="departments-heading">
-    <div><p class="eyebrow">CONNECTED CARE</p><h2 id="departments-heading">Explore our departments</h2></div>
-    <div class="department-tags">{% for department in departments %}<span>{{ department.name }}</span>{% empty %}<span>Department directory coming soon</span>{% endfor %}</div>
+
+<section class="directory-strip reveal-section" aria-labelledby="departments-heading">
+    <div><h2 id="departments-heading">Hospital departments</h2></div>
+    <div class="department-tags">
+        {% for department in departments %}{% with department_name=department.name|lower %}<span>{% if department_name == 'dentist' or department_name == 'dentistry' %}Dentistry{% elif department_name == 'gynaecologist' or department_name == 'gynecologist' or department_name == 'gynaecology' or department_name == 'gynecology' %}Gynaecology{% elif department_name == 'neurologist' or department_name == 'neurology' %}Neurology{% elif department_name == 'cardiologist' or department_name == 'cardiology' %}Cardiology{% else %}{{ department.name|title }}{% endif %}</span>{% endwith %}{% empty %}<span>Department directory coming soon</span>{% endfor %}
+    </div>
 </section>
-<section id="our-doctors" class="home-section" aria-labelledby="doctors-heading">
+
+<section id="our-doctors" class="home-section reveal-section" aria-labelledby="doctors-heading">
     <div class="section-heading">
-        <div><p class="eyebrow">PEOPLE BEHIND YOUR CARE</p><h2 id="doctors-heading">Meet our doctors.</h2><p>Explore their specialties and find your next available appointment.</p></div>
-        <a href="{% url 'doctor_list' %}" class="quiet-link">View all doctors <span aria-hidden="true">&rarr;</span></a>
+        <div><h2 id="doctors-heading">Doctors</h2><p>Choose a specialty and check availability</p></div>
+        <a href="{% url 'doctor_list' %}" class="quiet-link">View all doctors</a>
     </div>
     <div class="physician-grid">
         {% for doctor in doctors %}
-        <article class="physician-card">
-            <div class="physician-top"><div class="physician-initials" aria-hidden="true">{{ doctor.first_name|first }}{{ doctor.last_name|first }}</div><span class="department-label">{{ doctor.department.name }}</span></div>
-            <p class="physician-specialty">{{ doctor.specialization }}</p><h3>Dr. {{ doctor.first_name }} {{ doctor.last_name }}</h3>
+        <article class="physician-card" aria-label="Dr. {{ doctor.first_name|title }} {{ doctor.last_name|title }}, {{ doctor.specialization }}">
+            <div class="physician-top">
+                <div class="physician-initials" aria-hidden="true">{{ doctor.first_name|first|upper }}{{ doctor.last_name|first|upper }}</div>
+                {% with department_name=doctor.department.name|lower %}<span class="department-label">{% if department_name == 'dentist' or department_name == 'dentistry' %}Dentistry{% elif department_name == 'gynaecologist' or department_name == 'gynecologist' or department_name == 'gynaecology' or department_name == 'gynecology' %}Gynaecology{% elif department_name == 'neurologist' or department_name == 'neurology' %}Neurology{% elif department_name == 'cardiologist' or department_name == 'cardiology' %}Cardiology{% else %}{{ doctor.department.name|title }}{% endif %}</span>{% endwith %}
+            </div>
+            <h3>Dr. {{ doctor.first_name|title }} {{ doctor.last_name|title }}</h3>
             <div class="physician-schedule">
                 {% with hours=doctor.availability.all %}
-                {% if hours %}<p class="schedule-label">WEEKLY HOURS <span>{% now "e" %}</span></p><ul>
-                    {% for window in hours %}<li><span>{{ window.get_weekday_display }}</span><span>{{ window.start_time|time:"H:i" }} &ndash; {{ window.end_time|time:"H:i" }}</span></li>{% endfor %}
-                </ul>{% else %}<p class="schedule-empty">Hours have not been published yet.</p>{% endif %}
+                {% if hours %}
+                <p class="schedule-label">Weekly availability <span>NPT</span></p>
+                <ul>
+                    {% for window in hours %}<li><span>{% ifchanged window.weekday %}{{ window.get_weekday_display }}{% else %}Second shift{% endifchanged %}</span><span>{{ window.start_time|time:"H:i" }} &ndash; {{ window.end_time|time:"H:i" }}</span></li>{% endfor %}
+                </ul>
+                {% else %}
+                <p class="schedule-empty">Hours have not been published yet</p>
+                {% endif %}
                 {% endwith %}
             </div>
-            <a class="physician-link" href="{% url 'doctor_detail' doctor.pk %}">View profile &amp; available slots <span aria-hidden="true">&nearr;</span></a>
+            <a class="physician-link" href="{% url 'doctor_detail' doctor.pk %}">View profile &amp; available slots</a>
         </article>
-        {% empty %}<div class="directory-empty"><h3>Our directory is being prepared.</h3><p>Doctor profiles will appear here as they are added.</p></div>{% endfor %}
+        {% empty %}<div class="directory-empty"><h3>Our directory is being prepared</h3><p>Doctor profiles will appear here as they are added</p></div>{% endfor %}
     </div>
 </section>
-<section class="journey-section" aria-labelledby="journey-heading">
-    <div class="section-heading"><div><p class="eyebrow">LESS ADMIN. MORE CLARITY.</p><h2 id="journey-heading">Your visit, made simpler.</h2></div><p>From your first booking to your follow-up<br class="d-none d-md-block"> instructions, keep the essentials together.</p></div>
+
+<section class="journey-section reveal-section" aria-labelledby="journey-heading">
+    <div class="section-heading"><div><h2 id="journey-heading">How online booking works</h2></div></div>
     <ol class="journey-grid">
-        <li><span class="journey-number">01</span><h3>Make it personal</h3><p>Create your account and complete your patient profile before booking.</p></li>
-        <li><span class="journey-number">02</span><h3>Choose your time</h3><p>Check your doctor’s weekly hours and select an available 30-minute slot.</p></li>
-        <li><span class="journey-number">03</span><h3>Stay in the loop</h3><p>Review appointment updates and read prescriptions recorded by your doctor.</p></li>
+        <li><span class="journey-number">1</span><div><h3>Create account</h3><p>Add your patient information</p></div></li>
+        <li><span class="journey-number">2</span><div><h3>Choose a doctor and time</h3><p>Select an available appointment slot</p></div></li>
+        <li><span class="journey-number">3</span><div><h3>Manage appointments</h3><p>View appointments and prescriptions</p></div></li>
     </ol>
 </section>
-<section class="patient-cta" aria-labelledby="cta-heading">
-    <div><p class="eyebrow">YOUR PATIENT PORTAL</p><h2 id="cta-heading">One place for<br>your next step.</h2><p>Appointments, profiles, and prescriptions.<br>Organized around you.</p></div>
+
+<section id="ambulance" class="ambulance-service reveal-section" aria-label="Request ambulance support">
+    <div class="ambulance-mark" aria-hidden="true">
+        <span class="ambulance-cross"></span>
+    </div>
+    <div class="ambulance-copy">
+        <p class="eyebrow">Ambulance service</p>
+        <h2 id="ambulance-heading">Request ambulance</h2>
+        <p>Request urgent help, a hospital transfer, or scheduled transport</p>
+    </div>
+    <div class="ambulance-actions">
+        <div class="ambulance-buttons">
+            <a href="{% url 'ambulance_request' %}?service=EMERGENCY" class="btn btn-light">SOS request</a>
+            <a href="{% url 'ambulance_request' %}?service=SCHEDULED" class="ambulance-secondary">Other transport</a>
+        </div>
+        <p><strong>Life-threatening emergency?</strong><br>Call local emergency services now<br>Online requests do not guarantee dispatch</p>
+    </div>
+</section>
+
+<section class="patient-cta reveal-section" aria-labelledby="cta-heading">
+    <div class="patient-cta-copy">
+        <p class="eyebrow">Patient portal</p>
+        <h2 id="cta-heading">Patient account</h2>
+        <p>Manage appointments and prescriptions</p>
+    </div>
     <div class="cta-actions">
     {% if not request.user.is_authenticated %}
-        <a href="{% url 'register' %}" class="btn btn-light">Create a Patient Account <span aria-hidden="true">&rarr;</span></a><a href="{% url 'login' %}" class="cta-secondary">Already registered? Sign in</a>
+        <a href="{% url 'login' %}" class="btn btn-light">Patient login</a>
+        <a href="{% url 'register' %}" class="btn btn-outline-light">Create account</a>
     {% elif request.user.role == 'PATIENT' and not request.user.is_superuser %}
-        <a href="{% url 'patient_dashboard' %}" class="btn btn-light">My Dashboard <span aria-hidden="true">&rarr;</span></a><a href="{% url 'my_prescriptions' %}" class="cta-secondary">View my prescriptions</a>
+        <a href="{% url 'appointment_list' %}" class="btn btn-light">Appointments</a>
+        <a href="{% url 'my_prescriptions' %}" class="btn btn-outline-light">Prescriptions</a>
     {% else %}
-        <a href="{% url 'appointment_list' %}" class="btn btn-light">Open Appointments <span aria-hidden="true">&rarr;</span></a>
+        <a href="{% url 'appointment_list' %}" class="btn btn-light">Appointments</a>
     {% endif %}
     </div>
 </section>
-<aside class="demo-disclosure"><strong>Demonstration portal</strong><span>{% if appointment_fee %}Appointment fee: NPR {{ appointment_fee|floatformat:2 }}. {% endif %}eSewa payments use the sandbox only; no real money is collected.</span></aside>
+
+<aside class="demo-disclosure"><strong>Demonstration portal</strong><span>{% if appointment_fee %}Appointment fee: NPR {{ appointment_fee|floatformat:2 }} · {% endif %}eSewa payments use the sandbox only; no real money is collected</span></aside>
+
 <footer class="hospital-footer">
     <div><a href="{% url 'home' %}" class="footer-brand">HMS</a><p>Hospital &amp; Patient Services</p></div>
-    <div class="footer-links"><a href="{% url 'home' %}">Home</a><a href="{% url 'doctor_list' %}">Doctor directory</a>{% if not request.user.is_authenticated %}<a href="{% url 'login' %}">Patient portal</a>{% endif %}</div>
-    <p class="footer-meta">&copy; {% now "Y" %} HMS. Patient portal demonstration.</p>
+    <div class="footer-links">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'doctor_list' %}">Doctor directory</a>
+        <a href="{% url 'home' %}#ambulance">Ambulance</a>
+        {% if not request.user.is_authenticated %}<a href="{% url 'login' %}">Patient portal</a>{% endif %}
+    </div>
+    <p class="footer-meta">&copy; {% now "Y" %} HMS · Patient portal demonstration</p>
 </footer>
+<script src="{% static 'js/homepage.js' %}" defer></script>
 {% endblock %}

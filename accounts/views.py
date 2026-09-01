@@ -3,6 +3,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
+from django.db.models import Q
+from django.utils import timezone
+from appointments.models import Appointment
+from prescriptions.models import Prescription
+from patients.models import Patient
 from .models import User
 
 
@@ -96,7 +101,26 @@ def register_view(request):
 def patient_dashboard(request):
     if request.user.role != User.Role.PATIENT or request.user.is_superuser:
         raise PermissionDenied
-    return render(request, "accounts/patient_dashboard.html")
+    try:
+        profile = request.user.patient_profile
+    except Patient.DoesNotExist:
+        profile = None
+    appointments = Appointment.objects.none()
+    next_appointment = None
+    prescription_count = 0
+    if profile:
+        appointments = Appointment.objects.filter(patient=profile)
+        now = timezone.localtime()
+        next_appointment = appointments.exclude(status=Appointment.Status.CANCELLED).filter(
+            Q(appointment_date__gt=now.date()) | Q(appointment_date=now.date(), appointment_time__gte=now.time())
+        ).select_related("doctor").order_by("appointment_date", "appointment_time").first()
+        prescription_count = Prescription.objects.filter(appointment__patient=profile).count()
+    return render(request, "accounts/patient_dashboard.html", {
+        "profile": profile,
+        "next_appointment": next_appointment,
+        "appointment_count": appointments.exclude(status=Appointment.Status.CANCELLED).count(),
+        "prescription_count": prescription_count,
+    })
 
 
 @require_POST

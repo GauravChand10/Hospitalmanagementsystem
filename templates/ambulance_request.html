@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Ambulance Request | HMS{% endblock %}
+{% block content %}
+<section class="service-form-page" aria-labelledby="ambulance-form-heading">
+    <div class="service-form-intro">
+        <p class="eyebrow">No account required</p>
+        <h1 id="ambulance-form-heading">Request ambulance support.</h1>
+        <p>Choose emergency SOS, hospital transfer, or scheduled transport. Hospital staff must confirm every request by phone.</p>
+        <div class="emergency-warning"><strong>Immediate danger?</strong><span>Call your local emergency service now. Do not wait for this online form.</span></div>
+    </div>
+    <div class="service-form-card">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {{ form.as_p }}
+            <button class="btn btn-primary" type="submit">Send request <span aria-hidden="true">&rarr;</span></button>
+        </form>
+        <p class="privacy-note">Your details are used only to review and contact you about this request.</p>
+    </div>
+</section>
+{% endblock %}

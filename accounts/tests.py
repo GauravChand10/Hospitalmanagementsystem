@@ -15,11 +15,11 @@ class PatientNavigationTests(TestCase):
     def test_guest_navigation_and_login_button(self):
         response = self.client.get(reverse("home"))
         nav = response.content.decode().split("<nav", 1)[1].split("</nav>", 1)[0]
-        for label in ("Home", "Doctors", "Admin"):
+        for label in ("Home", "Doctors", "Ambulance"):
             self.assertIn(f">{label}</a>", nav)
-        for label in ("Patients", "Appointments", "My Dashboard", "Logout"):
+        for label in ("Patients", "Appointments", "My Dashboard", "Logout", "Admin"):
             self.assertNotIn(label, nav)
-        self.assertContains(response, "Patient Login")
+        self.assertContains(response, "Patient login")
         self.assertContains(response, 'href="/doctors/"')
 
     def test_guest_dashboard_and_admin_require_login(self):
@@ -30,14 +30,20 @@ class PatientNavigationTests(TestCase):
     def test_patient_has_dashboard_options_but_no_admin_link(self):
         self.client.force_login(self.patient)
         response = self.client.get(reverse("home"))
-        self.assertContains(response, "My Dashboard")
+        self.assertContains(response, "My dashboard")
         self.assertContains(response, "Signed in as patient")
         self.assertContains(response, "Logout")
-        self.assertNotContains(response, "Patient Login")
+        self.assertNotContains(response, "Patient login")
         self.assertNotContains(response, 'href="/admin/"')
         dashboard = self.client.get(reverse("patient_dashboard"))
-        for label in ("My Appointments", "My Prescriptions", "Lab Reports", "Support Ticket"):
+        for label in ("Book Appointment", "My Appointments", "My Prescriptions", "Ambulance Support", "Lab Reports", "Support Ticket", "Your care summary"):
             self.assertContains(dashboard, label)
+        self.assertContains(dashboard, "Complete your patient profile")
+        self.assertEqual(dashboard.context["appointment_count"], 0)
+        self.assertEqual(dashboard.context["prescription_count"], 0)
+        self.assertIn("no-cache", dashboard.headers["Cache-Control"])
+        self.assertEqual(dashboard.headers["Pragma"], "no-cache")
+        self.assertContains(dashboard, 'class="logout-form"')
         self.assertRedirects(
             self.client.get(reverse("admin:index")),
             f"{reverse('admin:login')}?next={reverse('admin:index')}",
@@ -47,7 +53,9 @@ class PatientNavigationTests(TestCase):
         self.client.force_login(self.admin)
         response = self.client.get(reverse("home"))
         self.assertContains(response, "Signed in as administrator")
-        self.assertNotContains(response, "Patient Login")
+        self.assertNotContains(response, "Patient login")
+        nav = response.content.decode().split("<nav", 1)[1].split("</nav>", 1)[0]
+        self.assertNotIn('href="/admin/"', nav)
         self.assertEqual(self.client.get(reverse("patient_dashboard")).status_code, 403)
 
     def test_logout_requires_post_and_restores_guest_navigation(self):
